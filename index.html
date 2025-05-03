@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CineFinder</title>
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="main.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <div class="nav-left">
+        <div class="brand-logo">
+          <a href="#">
+            <h1 class="logo-text">CineFinder 🎬</h1>
+          </a>
+        </div>
+        <nav class="nav-menu">
+          <ul>
+            <li class="selected"><a href="#">메인</a></li>
+            <li><a href="#popular-movies">TOP 영화</a></li>
+            <li><a href="#saved-movies">내 즐겨찾기</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="nav-right">
+        <div class="user-access">
+          <a href="#">회원가입 / 로그인</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="search-section">
+        <form class="movie-search-form" role="search">
+          <input
+            type="search"
+            placeholder="찾고 싶은 영화 제목을 입력하세요"
+            aria-label="영화 검색창"
+          />
+          <button type="submit">
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/622/622669.png"
+              alt="검색 아이콘"
+              width="20"
+              height="20"
+              class="icon-search"
+            />
+          </button>
+        </form>
+        <div class="search-results"></div>
+      </section>
+
+      <section id="popular-movies">
+        <h2 class="section-title">
+          오늘의 인기작 ✨
+          <span class="highlight">추천 리스트</span>
+        </h2>
+        <div class="movie-carousel" id="carousel-container">
+          <button id="btn-prev">←</button>
+          <div class="carousel-track" id="carousel-slides"></div>
+          <button id="btn-next">→</button>
+        </div>
+      </section>
+
+      <section id="saved-movies">
+        <h2 class="section-title">내가 찜한 영화 ❤️</h2>
+        <div class="favorites-container">
+          <div class="favorites-grid"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 CineFinder. 즐거운 감상 되세요!</p>
+    </footer>
+  </body>
+</html>
