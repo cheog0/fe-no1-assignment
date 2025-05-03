@@ -1,6 +1,4 @@
 import { showToast } from "./toasts.js";
-import { renderPopularMovies, renderFavorites } from "../main.js";
-// favorites.js
 
 export function getFavorites() {
   return JSON.parse(localStorage.getItem("favorites")) || [];
@@ -25,8 +23,4 @@ export function toggleFavorite(movie, favorites) {
 
   // 로컬 스토리지 업데이트
   saveFavorites(favorites);
-
-  // UI 업데이트
-  renderPopularMovies();
-  renderFavorites();
 }
