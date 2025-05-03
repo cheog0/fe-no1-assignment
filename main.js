@@ -1,11 +1,7 @@
-import {
-  getTrendingMovies,
-  searchMovies,
-  getMovieDetails,
-  getImageUrl,
-  getBackdropUrl,
-} from "./api/api.js";
-
+import { getTrendingMovies, searchMovies, getImageUrl } from "./api/api.js";
+import { getFavorites, toggleFavorite } from "./utils/favorites.js";
+import { setupCarousel } from "./components/carousel.js";
+import { closeMovieModal, openMovieModal } from "./components/modal.js";
 // DOM 요소 가져오기
 const searchForm = document.querySelector(".movie-search-form");
 const searchInput = searchForm.querySelector("input");
@@ -14,7 +10,7 @@ const favoritesGrid = document.querySelector(".favorites-grid");
 const popularMoviesSection = document.getElementById("popular-movies");
 
 // 로컬 스토리지에서 즐겨찾기 가져오기
-const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+const favorites = getFavorites();
 let trendingMovies = []; // 인기 영화 데이터를 저장할 변수
 
 // 페이지 로드 시 실행
@@ -115,7 +111,7 @@ function renderPopularMovies() {
   });
 
   // 캐러셀 기능 설정
-  setupCarousel(carousel);
+  setupCarousel(carousel, trendingMovies);
 }
 
 // 즐겨찾기 영화 렌더링
@@ -170,7 +166,7 @@ function createMovieCard(movie, isFavorite) {
   const favoriteBtn = card.querySelector(".favorite-btn");
   favoriteBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    toggleFavorite(movie);
+    toggleFavorite(movie, favorites);
   });
 
   // 카드 클릭 시 상세 정보 모달 표시
@@ -181,271 +177,11 @@ function createMovieCard(movie, isFavorite) {
   return card;
 }
 
-// 영화 상세 정보 모달 열기
-async function openMovieModal(movieId) {
-  const modalContainer = document.getElementById("movie-modal-container");
-
-  // 로딩 상태 표시
-  modalContainer.innerHTML = `
-    <div class="modal-content modal-loading">
-      <div class="loading">영화 상세 정보를 불러오는 중...</div>
-    </div>
-  `;
-  modalContainer.style.display = "flex";
-
-  try {
-    // 영화 상세 정보 가져오기
-    const movieDetails = await getMovieDetails(movieId);
-
-    // 장르 목록 생성
-    const genres = movieDetails.genres.map((genre) => genre.name).join(", ");
-
-    // 출연진 목록 (최대 5명)
-    const cast = movieDetails.credits?.cast || [];
-    const castList = cast
-      .slice(0, 5)
-      .map((actor) => actor.name)
-      .join(", ");
-
-    // 감독 찾기
-    const director = movieDetails.credits?.crew.find(
-      (person) => person.job === "Director"
-    );
-    const directorName = director ? director.name : "정보 없음";
-
-    // 예고편 키 찾기
-    const trailer = movieDetails.videos?.results.find(
-      (video) => video.type === "Trailer" && video.site === "YouTube"
-    );
-
-    // 모달 내용 업데이트
-    modalContainer.innerHTML = `
-      <div class="modal-content">
-        <div class="modal-header">
-          <button class="modal-close-btn">&times;</button>
-        </div>
-        <div class="modal-backdrop" style="background-image: url('${getBackdropUrl(
-          movieDetails.backdrop_path
-        )}')">
-          <div class="modal-backdrop-overlay"></div>
-        </div>
-        <div class="modal-body">
-          <div class="modal-poster">
-            <img src="${getImageUrl(movieDetails.poster_path)}" alt="${
-      movieDetails.title
-    } 포스터">
-          </div>
-          <div class="modal-info">
-            <h2 class="modal-title">${movieDetails.title}</h2>
-            <div class="modal-meta">
-              <span class="modal-year">${
-                movieDetails.release_date
-                  ? new Date(movieDetails.release_date).getFullYear()
-                  : "미정"
-              }</span>
-              <span class="modal-rating">⭐ ${
-                movieDetails.vote_average
-                  ? movieDetails.vote_average.toFixed(1)
-                  : "N/A"
-              }</span>
-              <span class="modal-runtime">${
-                movieDetails.runtime ? `${movieDetails.runtime}분` : ""
-              }</span>
-            </div>
-            <div class="modal-genres">${genres}</div>
-            <div class="modal-overview">
-              <h3>줄거리</h3>
-              <p>${movieDetails.overview || "줄거리 정보가 없습니다."}</p>
-            </div>
-            <div class="modal-credits">
-              <p><strong>감독:</strong> ${directorName}</p>
-              <p><strong>출연:</strong> ${castList || "정보 없음"}</p>
-            </div>
-            ${
-              trailer
-                ? `
-              <div class="modal-trailer">
-                <a href="https://www.youtube.com/watch?v=${trailer.key}" target="_blank" class="trailer-btn">
-                  <span>▶</span> 예고편 보기
-                </a>
-              </div>
-            `
-                : ""
-            }
-          </div>
-        </div>
-      </div>
-    `;
-
-    // 닫기 버튼 이벤트 리스너 추가
-    const closeBtn = modalContainer.querySelector(".modal-close-btn");
-    closeBtn.addEventListener("click", closeMovieModal);
-
-    // 모달 외부 클릭 시 닫기
-    modalContainer.addEventListener("click", (e) => {
-      if (e.target === modalContainer) {
-        closeMovieModal();
-      }
-    });
-
-    // ESC 키 누르면 모달 닫기
-    document.addEventListener("keydown", handleEscKeyPress);
-  } catch (error) {
-    console.error("영화 상세 정보를 불러오는 중 오류가 발생했습니다:", error);
-    modalContainer.innerHTML = `
-      <div class="modal-content">
-        <div class="modal-header">
-          <button class="modal-close-btn">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div class="error">영화 상세 정보를 불러오는 중 오류가 발생했습니다.</div>
-        </div>
-      </div>
-    `;
-
-    // 닫기 버튼 이벤트 리스너 추가
-    const closeBtn = modalContainer.querySelector(".modal-close-btn");
-    closeBtn.addEventListener("click", closeMovieModal);
-  }
-}
-
 // ESC 키 누르면 모달 닫기
 function handleEscKeyPress(e) {
   if (e.key === "Escape") {
     closeMovieModal();
   }
-}
-
-// 영화 상세 정보 모달 닫기
-function closeMovieModal() {
-  const modalContainer = document.getElementById("movie-modal-container");
-  modalContainer.style.display = "none";
-
-  // ESC 키 이벤트 리스너 제거
-  document.removeEventListener("keydown", handleEscKeyPress);
-}
-
-// 즐겨찾기 토글 함수
-function toggleFavorite(movie) {
-  const index = favorites.findIndex((fav) => fav.id === movie.id);
-
-  if (index === -1) {
-    // 즐겨찾기에 추가
-    favorites.push(movie);
-    showToast(`"${movie.title}" 영화를 찜했습니다!`);
-  } else {
-    // 즐겨찾기에서 제거
-    favorites.splice(index, 1);
-    showToast(`"${movie.title}" 영화를 찜 목록에서 제거했습니다.`);
-  }
-
-  // 로컬 스토리지 업데이트
-  localStorage.setItem("favorites", JSON.stringify(favorites));
-
-  // UI 업데이트
-  renderPopularMovies();
-  renderFavorites();
-}
-
-// 토스트 메시지 표시 함수
-function showToast(message) {
-  // 이미 있는 토스트 제거
-  const existingToast = document.querySelector(".toast");
-  if (existingToast) {
-    existingToast.remove();
-  }
-
-  const toast = document.createElement("div");
-  toast.className = "toast";
-  toast.textContent = message;
-
-  // 토스트 스타일
-  toast.style.position = "fixed";
-  toast.style.bottom = "20px";
-  toast.style.left = "50%";
-  toast.style.transform = "translateX(-50%)";
-  toast.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-  toast.style.color = "white";
-  toast.style.padding = "12px 24px";
-  toast.style.borderRadius = "4px";
-  toast.style.zIndex = "1000";
-  toast.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
-
-  document.body.appendChild(toast);
-
-  // 3초 후 토스트 제거
-  setTimeout(() => {
-    toast.style.opacity = "0";
-    toast.style.transition = "opacity 0.5s ease";
-    setTimeout(() => toast.remove(), 500);
-  }, 3000);
-}
-
-// 캐러셀 설정 - 완전히 재작성
-function setupCarousel(carouselElement) {
-  const carouselTrack = carouselElement.querySelector(".carousel-track");
-  const prevButton = carouselElement.querySelector("#btn-prev");
-  const nextButton = carouselElement.querySelector("#btn-next");
-  const container = carouselElement.querySelector(".carousel-container");
-
-  let currentIndex = 0;
-  const cardWidth = 200; // 카드 너비
-  const cardGap = 16; // 카드 간격
-  const cardFullWidth = cardWidth + cardGap; // 카드 전체 너비 (간격 포함)
-
-  // 초기 상태 설정
-  updateCarouselState();
-
-  // 이전 버튼 클릭 이벤트
-  prevButton.addEventListener("click", () => {
-    if (currentIndex > 0) {
-      currentIndex--;
-      updateCarouselState();
-    }
-  });
-
-  // 다음 버튼 클릭 이벤트
-  nextButton.addEventListener("click", () => {
-    const containerWidth = container.clientWidth;
-    const visibleCards = Math.floor(containerWidth / cardFullWidth);
-    const maxIndex = Math.max(0, trendingMovies.length - visibleCards);
-
-    if (currentIndex < maxIndex) {
-      currentIndex++;
-      updateCarouselState();
-    }
-  });
-
-  // 캐러셀 상태 업데이트
-  function updateCarouselState() {
-    // 트랙 위치 업데이트
-    carouselTrack.style.transform = `translateX(-${
-      currentIndex * cardFullWidth
-    }px)`;
-
-    // 버튼 상태 업데이트
-    prevButton.disabled = currentIndex <= 0;
-
-    const containerWidth = container.clientWidth;
-    const visibleCards = Math.floor(containerWidth / cardFullWidth);
-    const maxIndex = Math.max(0, trendingMovies.length - visibleCards);
-
-    nextButton.disabled = currentIndex >= maxIndex;
-  }
-
-  // 윈도우 리사이즈 이벤트
-  window.addEventListener("resize", () => {
-    // 현재 인덱스가 유효한지 확인하고 필요시 조정
-    const containerWidth = container.clientWidth;
-    const visibleCards = Math.floor(containerWidth / cardFullWidth);
-    const maxIndex = Math.max(0, trendingMovies.length - visibleCards);
-
-    if (currentIndex > maxIndex) {
-      currentIndex = maxIndex;
-    }
-
-    updateCarouselState();
-  });
 }
 
 // 검색 기능 설정
@@ -730,3 +466,4 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+export { renderPopularMovies, renderFavorites };
