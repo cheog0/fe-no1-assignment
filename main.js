@@ -492,10 +492,10 @@ function displaySearchResults(results) {
 
   if (!results || results.length === 0) {
     searchResults.innerHTML = `
-      <div class="no-results">
-        <p>검색 결과가 없습니다.</p>
-      </div>
-    `;
+        <div class="no-results">
+          <p>검색 결과가 없습니다.</p>
+        </div>
+      `;
     return;
   }
 
@@ -504,40 +504,9 @@ function displaySearchResults(results) {
 
   results.forEach((movie) => {
     const isFavorite = favorites.some((fav) => fav.id === movie.id);
-    const releaseYear = movie.release_date
-      ? new Date(movie.release_date).getFullYear()
-      : "미정";
-
-    const resultItem = document.createElement("div");
-    resultItem.className = "result-item";
-    resultItem.innerHTML = `
-      <img src="${getImageUrl(movie.poster_path)}" alt="${
-      movie.title
-    }" class="result-poster">
-      <div class="result-info">
-        <h3>${movie.title}</h3>
-        <p>⭐ ${
-          movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"
-        } | ${releaseYear}</p>
-      </div>
-      <button class="result-favorite-btn" data-id="${movie.id}">
-        ${isFavorite ? "❤️" : "🤍"}
-      </button>
-    `;
-
-    // 즐겨찾기 버튼 이벤트 리스너
-    const favoriteBtn = resultItem.querySelector(".result-favorite-btn");
-    favoriteBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggleFavorite(movie);
-    });
-
-    // 검색 결과 클릭 시 상세 정보 모달 표시
-    resultItem.addEventListener("click", () => {
-      openMovieModal(movie.id);
-    });
-
-    resultsContainer.appendChild(resultItem);
+    const card = createMovieCard(movie, isFavorite); //카드 기반 ui
+    card.classList.add("search-result-card");
+    resultsContainer.appendChild(card);
   });
 
   searchResults.appendChild(resultsContainer);
@@ -547,64 +516,24 @@ function displaySearchResults(results) {
 const style = document.createElement("style");
 style.textContent = `
   .results-container {
-    background-color: var(--dark-gray);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  }
-  
-  .result-item {
     display: flex;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #333;
-    transition: background-color var(--transition-speed);
-    cursor: pointer;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    justify-content: flex-start;
+ }
+  .search-result-card {
+    flex: 0 0 auto !important;
+    width: 180px !important;
   }
-  
-  .result-item:last-child {
-    border-bottom: none;
-  }
-  
-  .result-item:hover {
-    background-color: #333;
-  }
-  
-  .result-poster {
-    width: 50px;
-    height: 75px;
-    object-fit: cover;
-    border-radius: 4px;
-    margin-right: 15px;
-  }
-  
-  .result-info {
-    flex: 1;
-  }
-  
-  .result-info h3 {
-    font-size: 1rem;
-    margin-bottom: 5px;
-  }
-  
-  .result-info p {
-    font-size: 0.8rem;
-    color: #aaa;
-  }
-  
-  .result-favorite-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.2rem;
-  }
-  
+
   .no-results {
-    padding: 20px;
     text-align: center;
+    padding: 2rem;
     color: #aaa;
+    font-size: 1.1rem;
   }
-  
+
   .toast {
     position: fixed;
     bottom: 20px;
@@ -617,8 +546,7 @@ style.textContent = `
     z-index: 1000;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
-  
-  /* 모달 스타일 */
+
   .modal-container {
     position: fixed;
     top: 0;
@@ -633,7 +561,7 @@ style.textContent = `
     padding: 20px;
     overflow-y: auto;
   }
-  
+
   .modal-content {
     position: relative;
     width: 100%;
@@ -646,14 +574,14 @@ style.textContent = `
     display: flex;
     flex-direction: column;
   }
-  
+
   .modal-loading {
     padding: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
   }
-  
+
   .modal-header {
     position: absolute;
     top: 0;
@@ -661,7 +589,7 @@ style.textContent = `
     z-index: 10;
     padding: 15px;
   }
-  
+
   .modal-close-btn {
     background: rgba(0, 0, 0, 0.6);
     color: white;
@@ -676,18 +604,18 @@ style.textContent = `
     cursor: pointer;
     transition: background-color var(--transition-speed);
   }
-  
+
   .modal-close-btn:hover {
     background-color: var(--primary-color);
   }
-  
+
   .modal-backdrop {
     height: 300px;
     background-size: cover;
     background-position: center;
     position: relative;
   }
-  
+
   .modal-backdrop-overlay {
     position: absolute;
     top: 0;
@@ -696,7 +624,7 @@ style.textContent = `
     bottom: 0;
     background: linear-gradient(to bottom, rgba(20, 20, 20, 0.5) 0%, var(--dark-bg) 100%);
   }
-  
+
   .modal-body {
     padding: 0 30px 30px;
     display: flex;
@@ -705,69 +633,69 @@ style.textContent = `
     position: relative;
     margin-top: -150px;
   }
-  
+
   .modal-poster {
     flex: 0 0 200px;
   }
-  
+
   .modal-poster img {
     width: 100%;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
   }
-  
+
   .modal-info {
     flex: 1;
     min-width: 300px;
   }
-  
+
   .modal-title {
     font-size: 2rem;
     margin-bottom: 10px;
     color: white;
   }
-  
+
   .modal-meta {
     display: flex;
     gap: 15px;
     margin-bottom: 15px;
     color: #aaa;
   }
-  
+
   .modal-genres {
     margin-bottom: 20px;
     color: var(--primary-color);
     font-weight: 500;
   }
-  
+
   .modal-overview {
     margin-bottom: 20px;
   }
-  
+
   .modal-overview h3 {
     font-size: 1.2rem;
     margin-bottom: 10px;
     color: #ddd;
   }
-  
+
   .modal-overview p {
     line-height: 1.6;
     color: #bbb;
   }
-  
+
   .modal-credits {
     margin-bottom: 20px;
     color: #aaa;
   }
-  
+
   .modal-credits p {
     margin-bottom: 5px;
   }
-  
+
   .modal-trailer {
     margin-top: 20px;
   }
-  
+
   .trailer-btn {
     display: inline-flex;
     align-items: center;
@@ -779,28 +707,26 @@ style.textContent = `
     font-weight: 500;
     transition: background-color var(--transition-speed);
   }
-  
+
   .trailer-btn:hover {
     background-color: #ff0a16;
   }
-  
-  /* 반응형 모달 */
+
   @media (max-width: 768px) {
     .modal-body {
       flex-direction: column;
       margin-top: -100px;
     }
-    
+
     .modal-poster {
       flex: 0 0 auto;
       width: 180px;
       margin: 0 auto;
     }
-    
+
     .modal-title {
       font-size: 1.5rem;
     }
   }
 `;
-
 document.head.appendChild(style);
