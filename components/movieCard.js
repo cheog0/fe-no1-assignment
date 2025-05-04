@@ -52,51 +52,6 @@ export function createMovieCard(
   return card;
 }
 
-// 검색 결과 아이템 생성 함수
-export function createSearchResultItem(
-  movie,
-  isFavorite,
-  favorites,
-  onFavoriteChange,
-  openMovieModal
-) {
-  const releaseYear = movie.release_date
-    ? new Date(movie.release_date).getFullYear()
-    : "미정";
-
-  const resultItem = document.createElement("div");
-  resultItem.className = "result-item";
-  resultItem.innerHTML = `
-    <img src="${getImageUrl(movie.poster_path)}" alt="${
-    movie.title
-  }" class="result-poster">
-    <div class="result-info">
-      <h3>${movie.title}</h3>
-      <p>⭐ ${
-        movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"
-      } | ${releaseYear}</p>
-    </div>
-    <button class="result-favorite-btn" data-id="${movie.id}">
-      ${isFavorite ? "❤️" : "🤍"}
-    </button>
-  `;
-
-  // 즐겨찾기 버튼 이벤트 리스너
-  const favoriteBtn = resultItem.querySelector(".result-favorite-btn");
-  favoriteBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    toggleFavorite(movie, favorites, showToast);
-    if (onFavoriteChange) onFavoriteChange();
-  });
-
-  // 검색 결과 클릭 시 상세 정보 모달 표시
-  resultItem.addEventListener("click", () => {
-    openMovieModal(movie.id);
-  });
-
-  return resultItem;
-}
-
 // 영화 카드 스타일 추가
 export function addMovieCardStyles() {
   const style = document.createElement("style");
@@ -185,4 +140,49 @@ export function addMovieCardStyles() {
     }
   `;
   document.head.appendChild(style);
+}
+
+// 검색 결과 아이템 생성 함수
+export function createSearchResultItem(
+  movie,
+  isFavorite,
+  favorites,
+  onFavoriteChange,
+  openMovieModal
+) {
+  const releaseYear = movie.release_date
+    ? new Date(movie.release_date).getFullYear()
+    : "미정";
+
+  const resultItem = document.createElement("div");
+  resultItem.className = "result-item";
+  resultItem.innerHTML = `
+    <img src="${getImageUrl(movie.poster_path)}" alt="${
+    movie.title
+  }" class="result-poster">
+    <div class="result-info">
+      <h3>${movie.title}</h3>
+      <p>⭐ ${
+        movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"
+      } | ${releaseYear}</p>
+    </div>
+    <button class="result-favorite-btn" data-id="${movie.id}">
+      ${isFavorite ? "❤️" : "🤍"}
+    </button>
+  `;
+
+  // 즐겨찾기 버튼 이벤트 리스너
+  const favoriteBtn = resultItem.querySelector(".result-favorite-btn");
+  favoriteBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleFavorite(movie, favorites, showToast);
+    if (onFavoriteChange) onFavoriteChange();
+  });
+
+  // 검색 결과 클릭 시 상세 정보 모달 표시
+  resultItem.addEventListener("click", () => {
+    openMovieModal(movie.id);
+  });
+
+  return resultItem;
 }

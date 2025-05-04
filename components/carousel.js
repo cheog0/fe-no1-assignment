@@ -1,8 +1,8 @@
 // 캐러셀 설정
-export function setupCarousel(carouselElement, trendingMovies) {
+export function setupCarousel(carouselElement, movies) {
   const carouselTrack = carouselElement.querySelector(".carousel-track");
-  const prevButton = carouselElement.querySelector("#btn-prev");
-  const nextButton = carouselElement.querySelector("#btn-next");
+  const prevButton = carouselElement.querySelector("[id$='btn-prev']"); // id가 btn-prev로 끝나는 요소
+  const nextButton = carouselElement.querySelector("[id$='btn-next']"); // id가 btn-next로 끝나는 요소
   const container = carouselElement.querySelector(".carousel-container");
 
   let currentIndex = 0;
@@ -25,7 +25,7 @@ export function setupCarousel(carouselElement, trendingMovies) {
   nextButton.addEventListener("click", () => {
     const containerWidth = container.clientWidth;
     const visibleCards = Math.floor(containerWidth / cardFullWidth);
-    const maxIndex = Math.max(0, trendingMovies.length - visibleCards);
+    const maxIndex = Math.max(0, movies.length - visibleCards);
 
     if (currentIndex < maxIndex) {
       currentIndex++;
@@ -45,7 +45,7 @@ export function setupCarousel(carouselElement, trendingMovies) {
 
     const containerWidth = container.clientWidth;
     const visibleCards = Math.floor(containerWidth / cardFullWidth);
-    const maxIndex = Math.max(0, trendingMovies.length - visibleCards);
+    const maxIndex = Math.max(0, movies.length - visibleCards);
 
     nextButton.disabled = currentIndex >= maxIndex;
   }
@@ -55,7 +55,7 @@ export function setupCarousel(carouselElement, trendingMovies) {
     // 현재 인덱스가 유효한지 확인하고 필요시 조정
     const containerWidth = container.clientWidth;
     const visibleCards = Math.floor(containerWidth / cardFullWidth);
-    const maxIndex = Math.max(0, trendingMovies.length - visibleCards);
+    const maxIndex = Math.max(0, movies.length - visibleCards);
 
     if (currentIndex > maxIndex) {
       currentIndex = maxIndex;
@@ -103,8 +103,8 @@ export function addCarouselStyles() {
       z-index: 10;
     }
     
-    #btn-prev,
-    #btn-next {
+    [id$="btn-prev"],
+    [id$="btn-next"] {
       background-color: rgba(0, 0, 0, 0.7);
       color: var(--secondary-color);
       border: none;
@@ -120,14 +120,14 @@ export function addCarouselStyles() {
       pointer-events: auto; /* 버튼은 클릭 가능하게 */
     }
     
-    #btn-prev:hover,
-    #btn-next:hover {
+    [id$="btn-prev"]:hover,
+    [id$="btn-next"]:hover {
       background-color: var(--primary-color);
       transform: scale(1.1);
     }
     
-    #btn-prev:disabled,
-    #btn-next:disabled {
+    [id$="btn-prev"]:disabled,
+    [id$="btn-next"]:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
