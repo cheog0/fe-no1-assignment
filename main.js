@@ -74,6 +74,24 @@ function handleFavoriteChange() {
     handleFavoriteChange,
     openMovieModal
   );
+
+  // 검색 결과 섹션이 있으면 업데이트
+  const searchSection = document.getElementById("search-results-section");
+  if (searchSection) {
+    const carouselTrack = searchSection.querySelector(".carousel-track");
+    if (carouselTrack) {
+      // 모든 영화 카드의 즐겨찾기 상태 업데이트
+      const movieCards = carouselTrack.querySelectorAll(".movie-card");
+      movieCards.forEach((card) => {
+        const movieId = Number.parseInt(card.dataset.id);
+        const isFavorite = favorites.some((fav) => fav.id === movieId);
+        const favoriteBtn = card.querySelector(".favorite-btn");
+        if (favoriteBtn) {
+          favoriteBtn.innerHTML = isFavorite ? "❤️" : "🤍";
+        }
+      });
+    }
+  }
 }
 
 // 인기 영화 데이터 로드
