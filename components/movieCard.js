@@ -1,18 +1,11 @@
 import { getImageUrl } from "../api/api.js";
-import { toggleFavorite } from "../utils/favorites.js";
-import { showToast } from "../utils/toasts.js";
 
-// 영화 카드 생성 함수
-export function createMovieCard(
-  movie,
-  isFavorite,
-  favorites,
-  onFavoriteChange,
-  openMovieModal
-) {
+// 영화 카드 생성 함수 - 이벤트 리스너 제거
+export function createMovieCard(movie, isFavorite) {
   const card = document.createElement("div");
   card.className = "movie-card";
   card.dataset.id = movie.id;
+  card.dataset.type = "movie-card"; // 이벤트 위임을 위한 데이터 속성 추가
 
   // 출시 연도 추출
   const releaseYear = movie.release_date
@@ -31,25 +24,45 @@ export function createMovieCard(
         } | ${releaseYear}
       </div>
     </div>
-    <button class="favorite-btn" data-id="${movie.id}">
+    <button class="favorite-btn" data-id="${
+      movie.id
+    }" data-action="toggle-favorite">
       ${isFavorite ? "❤️" : "🤍"}
     </button>
   `;
 
-  // 즐겨찾기 버튼 이벤트 리스너
-  const favoriteBtn = card.querySelector(".favorite-btn");
-  favoriteBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    toggleFavorite(movie, favorites, showToast);
-    if (onFavoriteChange) onFavoriteChange();
-  });
-
-  // 카드 클릭 시 상세 정보 모달 표시
-  card.addEventListener("click", () => {
-    openMovieModal(movie.id);
-  });
-
   return card;
+}
+
+// 검색 결과 아이템 생성 함수 - 이벤트 리스너 제거
+export function createSearchResultItem(movie, isFavorite) {
+  const releaseYear = movie.release_date
+    ? new Date(movie.release_date).getFullYear()
+    : "미정";
+
+  const resultItem = document.createElement("div");
+  resultItem.className = "result-item";
+  resultItem.dataset.id = movie.id;
+  resultItem.dataset.type = "search-result"; // 이벤트 위임을 위한 데이터 속성 추가
+
+  resultItem.innerHTML = `
+    <img src="${getImageUrl(movie.poster_path)}" alt="${
+    movie.title
+  }" class="result-poster">
+    <div class="result-info">
+      <h3>${movie.title}</h3>
+      <p>⭐ ${
+        movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"
+      } | ${releaseYear}</p>
+    </div>
+    <button class="result-favorite-btn" data-id="${
+      movie.id
+    }" data-action="toggle-favorite">
+      ${isFavorite ? "❤️" : "🤍"}
+    </button>
+  `;
+
+  return resultItem;
 }
 
 // 영화 카드 스타일 추가
@@ -140,49 +153,4 @@ export function addMovieCardStyles() {
     }
   `;
   document.head.appendChild(style);
-}
-
-// 검색 결과 아이템 생성 함수
-export function createSearchResultItem(
-  movie,
-  isFavorite,
-  favorites,
-  onFavoriteChange,
-  openMovieModal
-) {
-  const releaseYear = movie.release_date
-    ? new Date(movie.release_date).getFullYear()
-    : "미정";
-
-  const resultItem = document.createElement("div");
-  resultItem.className = "result-item";
-  resultItem.innerHTML = `
-    <img src="${getImageUrl(movie.poster_path)}" alt="${
-    movie.title
-  }" class="result-poster">
-    <div class="result-info">
-      <h3>${movie.title}</h3>
-      <p>⭐ ${
-        movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"
-      } | ${releaseYear}</p>
-    </div>
-    <button class="result-favorite-btn" data-id="${movie.id}">
-      ${isFavorite ? "❤️" : "🤍"}
-    </button>
-  `;
-
-  // 즐겨찾기 버튼 이벤트 리스너
-  const favoriteBtn = resultItem.querySelector(".result-favorite-btn");
-  favoriteBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    toggleFavorite(movie, favorites, showToast);
-    if (onFavoriteChange) onFavoriteChange();
-  });
-
-  // 검색 결과 클릭 시 상세 정보 모달 표시
-  resultItem.addEventListener("click", () => {
-    openMovieModal(movie.id);
-  });
-
-  return resultItem;
 }

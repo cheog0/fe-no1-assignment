@@ -1,7 +1,7 @@
 import { createMovieCard } from "./movieCard.js";
 import { setupCarousel } from "./carousel.js";
 
-// 인기 영화 렌더링
+// 인기 영화 렌더링 - 이벤트 위임 적용
 export function renderPopularMovies(
   popularMoviesSection,
   trendingMovies,
@@ -42,21 +42,38 @@ export function renderPopularMovies(
   // 영화 카드 추가
   trendingMovies.forEach((movie) => {
     const isFavorite = favorites.some((fav) => fav.id === movie.id);
-    const movieCard = createMovieCard(
-      movie,
-      isFavorite,
-      favorites,
-      onFavoriteChange,
-      openMovieModal
-    );
+    const movieCard = createMovieCard(movie, isFavorite);
     carouselTrack.appendChild(movieCard);
+  });
+
+  // 이벤트 위임 - 캐러셀 트랙에 이벤트 리스너 추가
+  carouselTrack.addEventListener("click", (e) => {
+    const target = e.target;
+    const movieCard = target.closest("[data-type='movie-card']");
+
+    if (!movieCard) return;
+
+    // 즐겨찾기 버튼 클릭 처리
+    if (target.closest("[data-action='toggle-favorite']")) {
+      e.stopPropagation();
+      const movieId = Number.parseInt(movieCard.dataset.id);
+      const movie = trendingMovies.find((m) => m.id === movieId);
+      if (movie) {
+        onFavoriteChange(movie);
+      }
+      return;
+    }
+
+    // 영화 카드 클릭 처리 (모달 열기)
+    const movieId = Number.parseInt(movieCard.dataset.id);
+    openMovieModal(movieId);
   });
 
   // 캐러셀 기능 설정
   setupCarousel(carousel, trendingMovies);
 }
 
-// 즐겨찾기 영화 렌더링
+// 즐겨찾기 영화 렌더링 - 이벤트 위임 적용
 export function renderFavorites(
   favoritesGrid,
   favorites,
@@ -76,14 +93,31 @@ export function renderFavorites(
   }
 
   favorites.forEach((movie) => {
-    const movieCard = createMovieCard(
-      movie,
-      true,
-      favorites,
-      onFavoriteChange,
-      openMovieModal
-    );
+    const movieCard = createMovieCard(movie, true);
     favoritesGrid.appendChild(movieCard);
+  });
+
+  // 이벤트 위임 - 즐겨찾기 그리드에 이벤트 리스너 추가
+  favoritesGrid.addEventListener("click", (e) => {
+    const target = e.target;
+    const movieCard = target.closest("[data-type='movie-card']");
+
+    if (!movieCard) return;
+
+    // 즐겨찾기 버튼 클릭 처리
+    if (target.closest("[data-action='toggle-favorite']")) {
+      e.stopPropagation();
+      const movieId = Number.parseInt(movieCard.dataset.id);
+      const movie = favorites.find((m) => m.id === movieId);
+      if (movie) {
+        onFavoriteChange(movie);
+      }
+      return;
+    }
+
+    // 영화 카드 클릭 처리 (모달 열기)
+    const movieId = Number.parseInt(movieCard.dataset.id);
+    openMovieModal(movieId);
   });
 }
 

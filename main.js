@@ -1,5 +1,6 @@
 import { getTrendingMovies } from "./api/api.js";
-import { getFavorites } from "./utils/favorites.js";
+import { getFavorites, toggleFavorite } from "./utils/favorites.js";
+import { showToast } from "./utils/toasts.js";
 import {
   createModalContainer,
   openMovieModal,
@@ -44,7 +45,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderFavorites(
     favoritesGrid,
     favorites,
-    handleFavoriteChange,
+    handleFavoriteToggle,
     openMovieModal
   );
 
@@ -54,43 +55,46 @@ document.addEventListener("DOMContentLoaded", async () => {
     searchInput,
     searchResults,
     favorites,
-    handleFavoriteChange,
+    handleFavoriteToggle,
     openMovieModal
   );
 });
 
-// 즐겨찾기 변경 처리 함수
-function handleFavoriteChange() {
+// 즐겨찾기 토글 처리 함수
+function handleFavoriteToggle(movie) {
+  toggleFavorite(movie, favorites, showToast);
+
+  // UI 업데이트
   renderFavorites(
     favoritesGrid,
     favorites,
-    handleFavoriteChange,
+    handleFavoriteToggle,
     openMovieModal
   );
   renderPopularMovies(
     popularMoviesSection,
     trendingMovies,
     favorites,
-    handleFavoriteChange,
+    handleFavoriteToggle,
     openMovieModal
   );
 
   // 검색 결과 섹션이 있으면 업데이트
+  updateSearchResultsFavorites();
+}
+
+// 검색 결과의 즐겨찾기 상태 업데이트
+function updateSearchResultsFavorites() {
   const searchSection = document.getElementById("search-results-section");
   if (searchSection) {
-    const carouselTrack = searchSection.querySelector(".carousel-track");
-    if (carouselTrack) {
-      // 모든 영화 카드의 즐겨찾기 상태 업데이트
-      const movieCards = carouselTrack.querySelectorAll(".movie-card");
-      movieCards.forEach((card) => {
-        const movieId = Number.parseInt(card.dataset.id);
-        const isFavorite = favorites.some((fav) => fav.id === movieId);
-        const favoriteBtn = card.querySelector(".favorite-btn");
-        if (favoriteBtn) {
-          favoriteBtn.innerHTML = isFavorite ? "❤️" : "🤍";
-        }
-      });
-    }
+    const favoriteButtons = searchSection.querySelectorAll(
+      "[data-action='toggle-favorite']"
+    );
+    favoriteButtons.forEach((button) => {
+      const movieId = Number.parseInt(button.dataset.id);
+      const isFavorite = favorites.some((fav) => fav.id === movieId);
+      button.innerHTML = isFavorite ? "❤️" : "🤍";
+    });
   }
 }
 
@@ -120,7 +124,7 @@ async function loadTrendingMovies() {
       popularMoviesSection,
       trendingMovies,
       favorites,
-      handleFavoriteChange,
+      handleFavoriteToggle,
       openMovieModal
     );
   } catch (error) {

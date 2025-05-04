@@ -80,7 +80,7 @@ async function performSearch(
   }
 }
 
-// 검색 결과 표시 - 인기작 섹션과 유사한 형태로 변경
+// 검색 결과 표시 - 이벤트 위임 적용
 function displaySearchResults(
   query,
   results,
@@ -138,14 +138,31 @@ function displaySearchResults(
   // 영화 카드 추가
   results.forEach((movie) => {
     const isFavorite = favorites.some((fav) => fav.id === movie.id);
-    const movieCard = createMovieCard(
-      movie,
-      isFavorite,
-      favorites,
-      onFavoriteChange,
-      openMovieModal
-    );
+    const movieCard = createMovieCard(movie, isFavorite);
     carouselTrack.appendChild(movieCard);
+  });
+
+  // 이벤트 위임 - 캐러셀 트랙에 이벤트 리스너 추가
+  carouselTrack.addEventListener("click", (e) => {
+    const target = e.target;
+    const movieCard = target.closest("[data-type='movie-card']");
+
+    if (!movieCard) return;
+
+    // 즐겨찾기 버튼 클릭 처리
+    if (target.closest("[data-action='toggle-favorite']")) {
+      e.stopPropagation();
+      const movieId = Number.parseInt(movieCard.dataset.id);
+      const movie = results.find((m) => m.id === movieId);
+      if (movie) {
+        onFavoriteChange(movie);
+      }
+      return;
+    }
+
+    // 영화 카드 클릭 처리 (모달 열기)
+    const movieId = Number.parseInt(movieCard.dataset.id);
+    openMovieModal(movieId);
   });
 
   // 캐러셀 기능 설정

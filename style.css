@@ -87,7 +87,7 @@ header {
 }
 
 .nav-menu li.selected a {
-  color: var(--primary-color);
+  color: var(--secondary-color);
 }
 
 .nav-menu li.selected::after {
