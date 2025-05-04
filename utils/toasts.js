@@ -1,3 +1,4 @@
+// 토스트 메시지 표시 함수
 export function showToast(message) {
   // 이미 있는 토스트 제거
   const existingToast = document.querySelector(".toast");
@@ -9,7 +10,7 @@ export function showToast(message) {
   toast.className = "toast";
   toast.textContent = message;
 
-  // 스타일 설정 (필요 시 CSS로 분리 가능)
+  // 토스트 스타일
   toast.style.position = "fixed";
   toast.style.bottom = "20px";
   toast.style.left = "50%";
@@ -20,13 +21,13 @@ export function showToast(message) {
   toast.style.borderRadius = "4px";
   toast.style.zIndex = "1000";
   toast.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
-  toast.style.transition = "opacity 0.5s ease";
 
   document.body.appendChild(toast);
 
-  // 3초 후 제거
+  // 3초 후 토스트 제거
   setTimeout(() => {
     toast.style.opacity = "0";
+    toast.style.transition = "opacity 0.5s ease";
     setTimeout(() => toast.remove(), 500);
   }, 3000);
 }

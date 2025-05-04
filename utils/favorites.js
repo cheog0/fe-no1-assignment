@@ -1,14 +1,15 @@
-import { showToast } from "./toasts.js";
-
+// 로컬 스토리지에서 즐겨찾기 가져오기
 export function getFavorites() {
   return JSON.parse(localStorage.getItem("favorites")) || [];
 }
 
+// 즐겨찾기 저장하기
 export function saveFavorites(favorites) {
-  return localStorage.setItem("favorites", JSON.stringify(favorites));
+  localStorage.setItem("favorites", JSON.stringify(favorites));
 }
 
-export function toggleFavorite(movie, favorites) {
+// 즐겨찾기 토글 함수
+export function toggleFavorite(movie, favorites, showToast) {
   const index = favorites.findIndex((fav) => fav.id === movie.id);
 
   if (index === -1) {
@@ -23,4 +24,6 @@ export function toggleFavorite(movie, favorites) {
 
   // 로컬 스토리지 업데이트
   saveFavorites(favorites);
+
+  return favorites;
 }
