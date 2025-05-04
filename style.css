@@ -124,6 +124,7 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative; /* 추가: 검색 결과의 절대 위치 기준점 */
 }
 
 .movie-search-form {
@@ -131,6 +132,9 @@ main {
   width: 100%;
   max-width: 600px;
   position: relative;
+}
+.movie-search-form input::-webkit-search-cancel-button {
+  display: none;
 }
 
 .movie-search-form input {
@@ -142,9 +146,6 @@ main {
   color: var(--secondary-color);
   font-size: 1rem;
   transition: all var(--transition-speed);
-}
-.movie-search-form input::-webkit-search-cancel-button {
-  display: none;
 }
 
 .movie-search-form input:focus {
@@ -177,8 +178,9 @@ main {
 
 .search-results {
   width: 100%;
-  max-width: 600px;
-  margin-top: 1rem;
+  max-width: 800px; /* 검색 결과 최대 너비 증가 */
+  position: absolute; /* 추가: 검색 결과를 절대 위치로 */
+  z-index: 100; /* 추가: 다른 요소 위에 표시 */
 }
 
 /* 인기 영화 섹션 */
