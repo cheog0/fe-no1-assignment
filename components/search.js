@@ -69,9 +69,9 @@ async function performSearch(
       query,
       results,
       searchResults,
-      favorites,
-      onFavoriteChange,
-      openMovieModal
+      favorites, // 검색 결과를 보여줬을 때 즐겨찾기 유무에 따라 다르게 보여줘야 하기 떄문
+      onFavoriteChange, // 즐겨찾기 상태를 토글하고 UI를 업데이트하는 함수
+      openMovieModal // 영화 상세 정보를 모달창으로 표시하는 함수
     );
   } catch (error) {
     console.error("영화 검색 중 오류가 발생했습니다:", error);
