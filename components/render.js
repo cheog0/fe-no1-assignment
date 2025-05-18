@@ -3,11 +3,11 @@ import { setupCarousel } from "./carousel.js";
 
 // 인기 영화 렌더링 - 이벤트 위임 적용
 export function renderPopularMovies(
-  popularMoviesSection,
-  trendingMovies,
-  favorites,
-  onFavoriteChange,
-  openMovieModal
+  popularMoviesSection, // 어디에 그릴지 (HTML 요소)
+  trendingMovies, // 인기 영화 데이터 배열
+  favorites, // 찜한 영화 목록
+  onFavoriteChange, // 찜 토글할 때 실행할 함수
+  openMovieModal // 영화 상세 모달을 열 함수
 ) {
   // 기존 내용 제거 (로딩 메시지나 에러 메시지 포함)
   const existingElements = popularMoviesSection.querySelectorAll(
@@ -42,7 +42,7 @@ export function renderPopularMovies(
   // 영화 카드 추가
   trendingMovies.forEach((movie) => {
     const isFavorite = favorites.some((fav) => fav.id === movie.id);
-    const movieCard = createMovieCard(movie, isFavorite);
+    const movieCard = createMovieCard(movie, isFavorite); // 찜한 영화 여부를 인자로 받음 ${isFavorite ? "❤️" : "🤍"}
     carouselTrack.appendChild(movieCard);
   });
 

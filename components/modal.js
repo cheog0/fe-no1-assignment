@@ -14,7 +14,7 @@ export function createModalContainer() {
 export async function openMovieModal(movieId) {
   const modalContainer = document.getElementById("movie-modal-container");
 
-  // 로딩 상태 표시
+  // 로딩 상태 표시(비동기로 영화 상세 정보를 가져오기 전에 로딩 상태 표시)
   modalContainer.innerHTML = `
     <div class="modal-content modal-loading">
       <div class="loading">영화 상세 정보를 불러오는 중...</div>
@@ -24,7 +24,7 @@ export async function openMovieModal(movieId) {
 
   try {
     // 영화 상세 정보 가져오기
-    const movieDetails = await getMovieDetails(movieId);
+    const movieDetails = await getMovieDetails(movieId); // 영화 상세 정보 비동기로 가져오기
 
     // 장르 목록 생성
     const genres = movieDetails.genres.map((genre) => genre.name).join(", ");
@@ -151,7 +151,7 @@ export function closeMovieModal() {
   modalContainer.style.display = "none";
 
   // ESC 키 이벤트 리스너 제거
-  document.removeEventListener("keydown", handleEscKeyPress);
+  document.removeEventListener("keydown", handleEscKeyPress); // ESC 키 이벤트 리스너를 제거하여 메모리 누수 방지
 }
 
 // 모달 스타일 추가

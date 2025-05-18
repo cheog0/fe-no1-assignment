@@ -1,4 +1,5 @@
 // 캐러셀 설정
+// 이부분은 검색결과 표시 함수인 displaySearchResults()에서 호출됨
 export function setupCarousel(carouselElement, movies) {
   const carouselTrack = carouselElement.querySelector(".carousel-track");
   const prevButton = carouselElement.querySelector("[id$='btn-prev']"); // id가 btn-prev로 끝나는 요소

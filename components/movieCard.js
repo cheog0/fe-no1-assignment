@@ -36,6 +36,7 @@ export function createMovieCard(movie, isFavorite) {
 
 // 검색 결과 아이템 생성 함수 - 이벤트 리스너 제거
 export function createSearchResultItem(movie, isFavorite) {
+  // 영화 정보를 담은 객체, 즐겨찾기 여부를 인자로 받음
   const releaseYear = movie.release_date
     ? new Date(movie.release_date).getFullYear()
     : "미정";
